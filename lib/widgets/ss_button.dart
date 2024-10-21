@@ -5,10 +5,14 @@ class SsButton extends StatelessWidget {
   final Color backgroundColor;
   final String text;
   final Function() onPressed;
+  final bool enable;
+  final bool loading;
   const SsButton({
     this.backgroundColor = Colors.green,
     required this.text,
     required this.onPressed,
+    this.enable = true,
+    this.loading = false,
     super.key,
   });
 
@@ -19,13 +23,15 @@ class SsButton extends StatelessWidget {
       child: SsCard(
         padding: const EdgeInsets.all(18),
         width: double.infinity,
-        backgroundColor: backgroundColor,
-        child: Center(
-          child: Text(
-            text,
-            style: const TextStyle(color: Colors.black),
-          ),
-        ),
+        backgroundColor: enable ? backgroundColor : Colors.grey,
+        child: loading
+            ? const CircularProgressIndicator()
+            : Center(
+                child: Text(
+                  text,
+                  style: const TextStyle(color: Colors.black),
+                ),
+              ),
       ),
     );
   }

@@ -1,10 +1,13 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:facturacion/models/product_model.dart';
 import 'package:facturacion/widgets/ss_button.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 @RoutePage()
 class ProductEditPage extends StatelessWidget {
-  const ProductEditPage({super.key});
+  final ProductModel product;
+  const ProductEditPage({required this.product, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -18,39 +21,63 @@ class ProductEditPage extends StatelessWidget {
         child: Column(
           children: [
             const SizedBox(height: 10),
+            const Text('BarCode del producto'),
+            TextField(
+              enabled: false,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'BarCode',
+              ),
+              controller: TextEditingController(text: product.barCode),
+              keyboardType: TextInputType.number,
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
+              ],
+            ),
+            const SizedBox(height: 10),
             const Text('Nombre del producto'),
-            const TextField(
-              decoration: InputDecoration(
+            TextField(
+              enabled: false,
+              decoration: const InputDecoration(
                 border: OutlineInputBorder(),
                 labelText: 'Nombre',
               ),
+              controller: TextEditingController(text: product.name),
+              keyboardType: TextInputType.text,
             ),
             const SizedBox(height: 10),
             const Text('Cantidad producto'),
-            const TextField(
-              decoration: InputDecoration(
+            TextField(
+              enabled: false,
+              decoration: const InputDecoration(
                 border: OutlineInputBorder(),
                 labelText: 'Cantidad',
               ),
-            ),
-            const SizedBox(height: 10),
-            const Text('description del producto'),
-            const TextField(
-              decoration: InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: 'description',
-              ),
+              controller: TextEditingController(text: product.stock.toString()),
+              keyboardType: TextInputType.number,
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
+              ],
             ),
             const SizedBox(height: 10),
             const Text('Precio del producto'),
-            const TextField(
-              decoration: InputDecoration(
+            TextField(
+              enabled: false,
+              decoration: const InputDecoration(
                 border: OutlineInputBorder(),
                 labelText: 'Precio',
               ),
+              controller:
+                  TextEditingController(text: product.salePrice.toString()),
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
+              ],
             ),
             const SizedBox(height: 20),
             SsButton(
+              enable: false,
               onPressed: () {},
               text: 'Añadir',
               backgroundColor: Colors.green,

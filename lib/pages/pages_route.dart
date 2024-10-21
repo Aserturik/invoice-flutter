@@ -5,5 +5,6 @@ import 'package:facturacion/routes/app_router.gr.dart';
 final pageRoute = [
   CustomRoute(page: HomeRoute.page, initial: true),
   SsRoute(page: ProductAddRoute.page),
-  SsRoute(page: ProductEditRoute.page)
+  SsRoute(page: ProductEditRoute.page),
+  SsRoute(page: SaleRoute.page)
 ];
