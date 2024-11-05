@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:facturacion/models/product_model.dart';
 import 'package:facturacion/pages/app_provider.dart';
+import 'package:facturacion/widgets/ss_button.dart';
 import 'package:facturacion/widgets/ss_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -15,7 +16,10 @@ class SalePage extends ConsumerStatefulWidget {
 }
 
 class _HomePageState extends ConsumerState<SalePage> {
-  final List<ProductModel> productsSelected = [];
+  ProductModel? productSelected;
+  final TextEditingController _search = TextEditingController();
+  final TextEditingController _stock = TextEditingController();
+  List<SaleModel> productsSelected = [];
   @override
   void initState() {
     super.initState();
@@ -26,76 +30,102 @@ class _HomePageState extends ConsumerState<SalePage> {
 
   @override
   Widget build(BuildContext context) {
-    final List<ProductModel>? products = ref.watch(appProvider).products;
     final bool loading = ref.watch(appProvider).loadingHome;
+    final List<ProductModel> products = ref.watch(appProvider).products ?? [];
     return Scaffold(
-        floatingActionButton: FloatingActionButton(
-          backgroundColor: Colors.green,
-          child: const Icon(Icons.add),
-          onPressed: () {
-            if (productsSelected.isNotEmpty) {
-              // appRouter.push(SaleListRoute(productsSelected: productsSelected));
-            }
-          },
-        ),
-        appBar: AppBar(
-          backgroundColor: Colors.green,
-          title: const Text('VENTAS'),
-        ),
-        body: loading
-            ? const Center(child: CircularProgressIndicator())
-            : ListView.builder(
-                itemBuilder: (context, index) {
-                  final product = products![index];
-                  bool isSelected = productsSelected.contains(product);
-                  return Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: SsCard(
-                      child: Padding(
-                        padding: const EdgeInsets.all(15),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(product.barCode),
-                            Text(product.name),
-                            Text(product.salePrice.toString()),
-                            SizedBox(
-                              width: 50,
-                              child: Expanded(
-                                child: TextField(
-                                  onChanged: (value) {},
-                                  enabled: isSelected,
-                                  decoration: const InputDecoration(
-                                    border: OutlineInputBorder(),
-                                    labelText: 'Cantidad',
-                                  ),
-                                  controller: TextEditingController(text: '1'),
-                                  keyboardType: TextInputType.number,
-                                  inputFormatters: [
-                                    FilteringTextInputFormatter.digitsOnly,
-                                  ],
-                                ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.green,
+        child: const Icon(Icons.add),
+        onPressed: () async {
+          await ref.read(appProvider.notifier).sales(
+                sales: productsSelected,
+              );
+        },
+      ),
+      appBar: AppBar(
+        backgroundColor: Colors.green,
+        title: const Text('VENTAS'),
+      ),
+      body: loading
+          ? const Center(child: CircularProgressIndicator())
+          : Column(
+              children: [
+                const SizedBox(
+                  height: 10,
+                ),
+                TextField(
+                  onChanged: (value) {
+                    try {
+                      productSelected = products.firstWhere(
+                        (element) =>
+                            element.barCode.contains(value) ||
+                            element.name.contains(value),
+                      );
+                    } catch (e) {
+                      productSelected = null;
+                    }
+                    print(value);
+                    setState(() {});
+                  },
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: 'BarCode',
+                  ),
+                  controller: _search,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                  ],
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                if (productSelected != null) ...[
+                  SsCard(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(productSelected!.barCode),
+                        Text(productSelected!.name),
+                        Text(productSelected!.salePrice.toString()),
+                        SizedBox(
+                          width: 80,
+                          child: Expanded(
+                            child: TextField(
+                              onChanged: (value) {},
+                              decoration: const InputDecoration(
+                                border: OutlineInputBorder(),
+                                labelText: 'Cantidad',
                               ),
+                              controller: _stock,
+                              keyboardType: TextInputType.number,
+                              inputFormatters: [
+                                FilteringTextInputFormatter.digitsOnly,
+                              ],
                             ),
-                            Checkbox(
-                              value: isSelected,
-                              onChanged: (value) {
-                                if (value == true) {
-                                  productsSelected.add(product);
-                                } else {
-                                  productsSelected.remove(product);
-                                }
-                                setState(() {});
-                                // print(products);
-                              },
-                            )
-                          ],
+                          ),
                         ),
-                      ),
+                      ],
                     ),
-                  );
-                },
-                itemCount: products?.length ?? 0,
-              ));
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  SsButton(
+                    text: 'Añadir',
+                    onPressed: () async {
+                      productsSelected.add(
+                        SaleModel(
+                          idProduct: productSelected!.id,
+                          quantity: int.parse(_stock.text),
+                          unitPrice: productSelected!.salePrice,
+                        ),
+                      );
+                    },
+                  )
+                ]
+              ],
+            ),
+    );
   }
 }

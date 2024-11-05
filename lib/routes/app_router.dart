@@ -5,28 +5,6 @@ import 'package:facturacion/pages/pages_route.dart';
 class AppRouter extends RootStackRouter {
   @override
   List<AutoRoute> get routes => [...pageRoute];
-
-  // bool contain(PageInfo page) {
-  //   return appRouter.stack.any((e) => e.name == page.name);
-  // }
-
-  // bool currentIs(PageInfo page) {
-  //   return appRouter.current.name == page.name;
-  // }
-
-  // Future<void> pushAndPopUntilTo(PageRouteInfo page) async {
-  //   await appRouter.pushAndPopUntil(
-  //     page,
-  //     predicate: (route) => route.settings.name == HomeRoute.name,
-  //   );
-  // }
-
-  // Future<void> popUntilHome() async {
-  //   await appRouter.pushAndPopUntil(
-  //     const HomeRoute(),
-  //     predicate: (route) => false,
-  //   );
-  // }
 }
 
 class SsRoute extends CustomRoute {
