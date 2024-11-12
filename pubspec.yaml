@@ -35,10 +35,10 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_barcode_scanner: ^2.0.0
-  flutter_plugin_android_lifecycle: ^2.0.23
   flutter_riverpod: ^2.6.0
   http: ^1.2.2
   riverpod: ^2.5.3
+  shared_preferences: ^2.3.2
 
 dev_dependencies:
   flutter_lints: ^4.0.0
@@ -49,6 +49,9 @@ dev_dependencies:
 # following page: https://dart.dev/tools/pub/pubspec
 # The following section is specific to Flutter packages.
 flutter:
+  assets:
+    - assets/imagen/logo.png
+    - assets/icon/huella.png
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in

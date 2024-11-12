@@ -32,11 +32,14 @@ class _HomePageState extends ConsumerState<HomePage> {
       "Cancel",
       true,
       ScanMode.BARCODE,
-    )?.listen((barcode) {
-      print(barcode);
-      setState(() {
-        scann = barcode;
-      });
+    )?.listen((barcode) async {
+      scann = barcode;
+      final product = await ref.read(appProvider.notifier).searchProduct(scann);
+      if (product != null) {
+        appRouter.push(ProductEditRoute(product: product));
+      } else {
+        appRouter.push(ProductAddRoute(barcode: scann));
+      }
     });
   }
 
@@ -45,19 +48,22 @@ class _HomePageState extends ConsumerState<HomePage> {
     final List<ProductModel?>? products = ref.watch(appProvider).products;
     final bool loading = ref.watch(appProvider).loadingHome;
     return Scaffold(
+      bottomNavigationBar: null,
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          await scanBarCode();
+        },
+        child: const Icon(Icons.add),
+      ),
       appBar: AppBar(
-        backgroundColor: Colors.green,
-        title: Text(scann /* 'HOME' */),
+        backgroundColor: const Color.fromRGBO(238, 106, 34, 1),
+        title: const Text('HOME'),
         actions: [
           PopupMenuButton<String>(
             onSelected: (value) async {
               switch (value) {
                 case 'Añadir nuevo producto':
-                  // appRouter.push(const ProductAddRoute());
-                  await scanBarCode();
-                  break;
-                case 'Crear factura':
-                  // appRouter.push(const SaleRoute());
+                  appRouter.push(ProductAddRoute());
                   break;
               }
             },
@@ -66,10 +72,6 @@ class _HomePageState extends ConsumerState<HomePage> {
                 const PopupMenuItem(
                   value: 'Añadir nuevo producto',
                   child: Text('Añadir nuevo producto'),
-                ),
-                const PopupMenuItem(
-                  value: 'Crear factura',
-                  child: Text('Crear factura'),
                 ),
               ];
             },

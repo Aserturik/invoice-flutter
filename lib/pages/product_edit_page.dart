@@ -1,19 +1,36 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:facturacion/models/product_model.dart';
+import 'package:facturacion/pages/app_provider.dart';
 import 'package:facturacion/widgets/ss_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 @RoutePage()
-class ProductEditPage extends StatelessWidget {
-  final ProductModel product;
+class ProductEditPage extends ConsumerStatefulWidget {
+  final ProductModel? product;
   const ProductEditPage({required this.product, super.key});
+
+  @override
+  ConsumerState<ProductEditPage> createState() => _ProductEditPageState();
+}
+
+class _ProductEditPageState extends ConsumerState<ProductEditPage> {
+  @override
+  void initState() {
+    super.initState();
+    if (widget.product == null) {
+      WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+        ref.read(appProvider.notifier).fetchData();
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.green,
+        backgroundColor: const Color.fromRGBO(238, 106, 34, 1),
         title: const Text('EDITAR PRODUCTO'),
       ),
       body: Padding(
@@ -28,7 +45,7 @@ class ProductEditPage extends StatelessWidget {
                 border: OutlineInputBorder(),
                 labelText: 'BarCode',
               ),
-              controller: TextEditingController(text: product.barCode),
+              controller: TextEditingController(text: widget.product!.barCode),
               keyboardType: TextInputType.number,
               inputFormatters: [
                 FilteringTextInputFormatter.digitsOnly,
@@ -42,7 +59,7 @@ class ProductEditPage extends StatelessWidget {
                 border: OutlineInputBorder(),
                 labelText: 'Nombre',
               ),
-              controller: TextEditingController(text: product.name),
+              controller: TextEditingController(text: widget.product!.name),
               keyboardType: TextInputType.text,
             ),
             const SizedBox(height: 10),
@@ -53,7 +70,8 @@ class ProductEditPage extends StatelessWidget {
                 border: OutlineInputBorder(),
                 labelText: 'Cantidad',
               ),
-              controller: TextEditingController(text: product.stock.toString()),
+              controller:
+                  TextEditingController(text: widget.product!.stock.toString()),
               keyboardType: TextInputType.number,
               inputFormatters: [
                 FilteringTextInputFormatter.digitsOnly,
@@ -67,8 +85,8 @@ class ProductEditPage extends StatelessWidget {
                 border: OutlineInputBorder(),
                 labelText: 'Precio',
               ),
-              controller:
-                  TextEditingController(text: product.salePrice.toString()),
+              controller: TextEditingController(
+                  text: widget.product!.salePrice.toString()),
               keyboardType:
                   const TextInputType.numberWithOptions(decimal: true),
               inputFormatters: [
@@ -80,7 +98,7 @@ class ProductEditPage extends StatelessWidget {
               enable: false,
               onPressed: () {},
               text: 'Añadir',
-              backgroundColor: Colors.green,
+              backgroundColor: const Color.fromRGBO(238, 106, 34, 1),
             )
           ],
         ),

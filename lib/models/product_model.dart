@@ -1,7 +1,8 @@
 class ProductModel {
   final int id;
-  final String name;
   final String barCode;
+  final String name;
+  final double purchasePrice;
   final double salePrice;
   final int stock;
 
@@ -9,6 +10,7 @@ class ProductModel {
     required this.id,
     required this.name,
     required this.barCode,
+    required this.purchasePrice,
     required this.salePrice,
     required this.stock,
   });
@@ -18,6 +20,7 @@ class ProductModel {
       id: json['id'],
       name: json['name'],
       barCode: json['barCode'],
+      purchasePrice: json['purchasePrice'],
       salePrice: json['salePrice'],
       stock: json['stock'],
     );

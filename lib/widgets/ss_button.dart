@@ -2,17 +2,27 @@ import 'package:facturacion/widgets/ss_card.dart';
 import 'package:flutter/material.dart';
 
 class SsButton extends StatelessWidget {
-  final Color backgroundColor;
+  final Color? backgroundColor;
   final String text;
   final Function() onPressed;
   final bool enable;
   final bool loading;
+  final BorderRadiusGeometry? borderRadius;
+  final Color? boderColor;
+  final Color? textColor;
+  final double? borderWidth;
+  final double? width;
   const SsButton({
-    this.backgroundColor = Colors.green,
+    this.backgroundColor,
     required this.text,
     required this.onPressed,
     this.enable = true,
     this.loading = false,
+    this.borderRadius,
+    this.boderColor,
+    this.borderWidth,
+    this.textColor,
+    this.width,
     super.key,
   });
 
@@ -21,15 +31,21 @@ class SsButton extends StatelessWidget {
     return InkWell(
       onTap: onPressed,
       child: SsCard(
-        padding: const EdgeInsets.all(18),
-        width: double.infinity,
+        boderColor: boderColor,
+        borderWidth: borderWidth,
+        borderRadius: borderRadius,
+        padding: const EdgeInsets.all(14),
+        width: width ?? double.infinity,
         backgroundColor: enable ? backgroundColor : Colors.grey,
         child: loading
             ? const CircularProgressIndicator()
             : Center(
                 child: Text(
                   text,
-                  style: const TextStyle(color: Colors.black),
+                  style: TextStyle(
+                    color: textColor ?? Colors.black,
+                    fontSize: 20,
+                  ),
                 ),
               ),
       ),
