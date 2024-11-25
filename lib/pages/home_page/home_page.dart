@@ -26,6 +26,8 @@ class _HomePageState extends ConsumerState<HomePage> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
       await ref.read(appProvider.notifier).fetchData();
+      await ref.read(homeProvider.notifier).fetchDataClients();
+      await ref.read(homeProvider.notifier).fetchDataSales();
     });
   }
 
@@ -107,7 +109,7 @@ class _HomePageState extends ConsumerState<HomePage> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: const Text(
-          'HOME',
+          'Home',
           style: TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.bold,
@@ -120,8 +122,11 @@ class _HomePageState extends ConsumerState<HomePage> {
                 case 'addProduct':
                   appRouter.push(ProductAddRoute());
                   break;
-                case 'buy':
+                case 'sale':
                   appRouter.push(const SaleRoute());
+                  break;
+                case 'addClient':
+                  appRouter.push(const ClientAddRoute());
                   break;
                 case 'logOut':
                   await CacheNetwork.deleteCacheData(key: "jwtToken");
@@ -148,11 +153,26 @@ class _HomePageState extends ConsumerState<HomePage> {
                   ),
                 ),
                 const PopupMenuItem(
-                  value: 'buy',
+                  value: 'sale',
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Nueva compra'),
+                      Text('Nueva venta'),
+                      Image(
+                        image: AssetImage(
+                          'assets/icon/buy.png',
+                        ),
+                        height: 30,
+                      ),
+                    ],
+                  ),
+                ),
+                const PopupMenuItem(
+                  value: 'addClient',
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('Nueva cliente'),
                       Image(
                         image: AssetImage(
                           'assets/icon/buy.png',

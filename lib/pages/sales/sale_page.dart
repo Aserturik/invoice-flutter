@@ -1,11 +1,14 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:facturacion/models/client_model.dart';
 import 'package:facturacion/models/product_model.dart';
 import 'package:facturacion/pages/app_provider.dart';
+import 'package:facturacion/pages/home_page/home_provider.dart';
 import 'package:facturacion/utils/double_extension.dart';
 import 'package:facturacion/widgets/ss_alert.dart';
 import 'package:facturacion/widgets/ss_button.dart';
 import 'package:facturacion/widgets/ss_card.dart';
 import 'package:facturacion/widgets/ss_colors.dart';
+import 'package:facturacion/widgets/ss_dropdown.dart';
 import 'package:facturacion/widgets/ss_list_view.dart';
 import 'package:facturacion/widgets/ss_tabs.dart';
 import 'package:facturacion/widgets/ss_textfield.dart';
@@ -29,6 +32,7 @@ class _HomePageState extends ConsumerState<SalePage> {
   List<SaleModel> salesList = [];
   List<ProductModel> productsSearch = [];
   List<ProductModel> productsSelected = [];
+  ClientModel? clientModel;
   @override
   void initState() {
     super.initState();
@@ -429,14 +433,35 @@ class _HomePageState extends ConsumerState<SalePage> {
                               const SizedBox(
                                 height: 20,
                               ),
+                              SsDropdown<ClientModel>(
+                                options: ref.read(homeProvider).clients ?? [],
+                                itemBuilder: (item) => Text(item.email),
+                                onChanged: (value) {
+                                  clientModel = value;
+                                },
+                                initialValue: clientModel,
+                              ),
+                              const SizedBox(height: 20),
                               SsButton(
                                 loading: loading || loadingSales,
                                 text: 'Realizar venta',
                                 onPressed: () async {
+                                  if (productsSelected.isEmpty) {
+                                    SsAlert.showAutoDismissSnackbar(context,
+                                        Colors.red, 'No hay productos');
+                                    return;
+                                  }
+                                  if (clientModel?.email == null ||
+                                      clientModel!.email.isEmpty) {
+                                    SsAlert.showAutoDismissSnackbar(
+                                        context, Colors.red, 'No hay cliente');
+                                    return;
+                                  }
                                   setState(() => loadingSales = true);
-                                  await ref
-                                      .read(appProvider.notifier)
-                                      .sendSale(productsSelected, context);
+                                  await ref.read(appProvider.notifier).sendSale(
+                                      productsSelected,
+                                      context,
+                                      clientModel!.email);
                                   setState(() => loadingSales = false);
                                 },
                                 fontSize: 16,

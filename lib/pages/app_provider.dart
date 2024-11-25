@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:facturacion/routes/app_router.dart';
+import 'package:facturacion/routes/app_router.gr.dart';
 import 'package:facturacion/shared/constants/constants.dart';
 import 'package:facturacion/shared/network/local_network.dart';
 import 'package:facturacion/widgets/ss_alert.dart';
@@ -59,10 +61,12 @@ class AuthSignUpNotifier extends StateNotifier<AppState> {
   }
 
   Future<void> sendSale(
-      List<ProductModel> products, BuildContext context) async {
-    const String username = 'deam10hw@gmail.com';
+    List<ProductModel> products,
+    BuildContext context,
+    String email,
+  ) async {
     const String paymentMethod = 'CASH';
-
+    print(email);
     // Construye la lista `saleDetails`
     final saleDetails = products.map((product) {
       return {
@@ -73,7 +77,7 @@ class AuthSignUpNotifier extends StateNotifier<AppState> {
 
     // JSON que será enviado
     final requestBody = {
-      "username": username,
+      "username": email,
       "paymentMethod": paymentMethod,
       "saleDetails": saleDetails,
     };
@@ -95,12 +99,13 @@ class AuthSignUpNotifier extends StateNotifier<AppState> {
           Colors.green,
           'Venta realizada con éxito',
         );
+        appRouter.popAndPush(const HomeRoute());
       } else {
         SsAlert.showAutoDismissSnackbar(
           // ignore: use_build_context_synchronously
           context,
           Colors.red,
-          'Error al realizar la venta',
+          'Error al realizar la venta: ${response.statusCode}',
         );
       }
     } catch (e) {

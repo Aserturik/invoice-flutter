@@ -1,5 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:facturacion/pages/auth/auth_route.dart';
+import 'package:facturacion/pages/client/client_route.dart';
 import 'package:facturacion/pages/pages_route.dart';
 import 'package:facturacion/pages/sales/sales_route.dart';
 
@@ -10,6 +11,7 @@ class AppRouter extends RootStackRouter {
         ...pageRoute,
         ...authRoute,
         ...salesRoute,
+        ...clientRoute,
       ];
 }
 
