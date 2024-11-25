@@ -29,4 +29,22 @@ class ProductModel {
   static List<ProductModel> fromJsonList(List<dynamic> jsonList) {
     return jsonList.map((json) => ProductModel.fromJson(json)).toList();
   }
+
+  ProductModel copyWith({
+    int? id,
+    String? name,
+    String? barCode,
+    double? purchasePrice,
+    double? salePrice,
+    int? stock,
+  }) {
+    return ProductModel(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      barCode: barCode ?? this.barCode,
+      purchasePrice: purchasePrice ?? this.purchasePrice,
+      salePrice: salePrice ?? this.salePrice,
+      stock: stock ?? this.stock,
+    );
+  }
 }

@@ -21,7 +21,7 @@ class ProductAddPage extends ConsumerStatefulWidget {
 class _ProductAddPageState extends ConsumerState<ProductAddPage> {
   final TextEditingController _barCodeController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _stockController = TextEditingController();
+  // final TextEditingController _stockController = TextEditingController();
   final TextEditingController _purchasePriceController =
       TextEditingController();
   final TextEditingController _salePriceController = TextEditingController();
@@ -111,6 +111,7 @@ class _ProductAddPageState extends ConsumerState<ProductAddPage> {
               ),
               const SizedBox(height: 20),
               SsButton(
+                fontSize: 20,
                 loading: loading,
                 enable: !loading,
                 onPressed: () async {

@@ -12,6 +12,8 @@ class SsButton extends StatelessWidget {
   final Color? textColor;
   final double? borderWidth;
   final double? width;
+  final EdgeInsetsGeometry? padding;
+  final double? fontSize;
   const SsButton({
     this.backgroundColor,
     required this.text,
@@ -23,6 +25,8 @@ class SsButton extends StatelessWidget {
     this.borderWidth,
     this.textColor,
     this.width,
+    this.padding,
+    this.fontSize,
     super.key,
   });
 
@@ -34,20 +38,26 @@ class SsButton extends StatelessWidget {
         boderColor: boderColor,
         borderWidth: borderWidth,
         borderRadius: borderRadius,
-        padding: const EdgeInsets.all(14),
+        padding: padding ?? const EdgeInsets.all(14),
         width: width ?? double.infinity,
         backgroundColor: enable ? backgroundColor : Colors.grey,
-        child: loading
-            ? const CircularProgressIndicator()
-            : Center(
-                child: Text(
+        child: Center(
+          child: loading
+              ? SizedBox(
+                  height: fontSize ??
+                      20, // Ajusta el tamaño al esperado para el texto
+                  width: fontSize ??
+                      20, // Igual altura y ancho para mantener proporción
+                  child: const CircularProgressIndicator(strokeWidth: 2),
+                )
+              : Text(
                   text,
                   style: TextStyle(
                     color: textColor ?? Colors.black,
-                    fontSize: 20,
+                    fontSize: fontSize ?? 20,
                   ),
                 ),
-              ),
+        ),
       ),
     );
   }

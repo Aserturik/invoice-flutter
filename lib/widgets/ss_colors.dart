@@ -23,6 +23,10 @@ class SsColors {
     return color.withOpacity(opacity);
   }
 
+  // static const Color orange = Color.fromRGBO(231, 111, 81, 1);
   static const Color orange = Color.fromRGBO(238, 106, 34, 1);
   static const Color brown = Color.fromRGBO(183, 89, 38, 1);
+  static const Color green = Color.fromRGBO(42, 157, 143, 1);
+  static const Color yellow = Color.fromRGBO(233, 196, 106, 1);
+  static const Color blue = Color.fromRGBO(38, 70, 83, 1);
 }

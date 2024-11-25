@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:facturacion/pages/auth/auth_route.dart';
 import 'package:facturacion/pages/pages_route.dart';
+import 'package:facturacion/pages/sales/sales_route.dart';
 
 @AutoRouterConfig()
 class AppRouter extends RootStackRouter {
@@ -8,6 +9,7 @@ class AppRouter extends RootStackRouter {
   List<AutoRoute> get routes => [
         ...pageRoute,
         ...authRoute,
+        ...salesRoute,
       ];
 }
 

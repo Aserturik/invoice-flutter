@@ -37,6 +37,8 @@ dependencies:
   flutter_barcode_scanner: ^2.0.0
   flutter_riverpod: ^2.6.0
   http: ^1.2.2
+  lazy_load_indexed_stack: ^1.1.0
+  pull_to_refresh: ^2.0.0
   riverpod: ^2.5.3
   shared_preferences: ^2.3.2
 
@@ -51,7 +53,14 @@ dev_dependencies:
 flutter:
   assets:
     - assets/imagen/logo.png
+    - assets/imagen/monello.png
     - assets/icon/huella.png
+    - assets/icon/product.png
+    - assets/icon/add_producto.png
+    - assets/icon/buy.png
+    - assets/icon/log_out.png
+    - assets/icon/clients.png
+    - assets/icon/invoice.png
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in

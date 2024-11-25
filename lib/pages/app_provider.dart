@@ -12,12 +12,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class AuthSignUpNotifier extends StateNotifier<AppState> {
   AuthSignUpNotifier() : super(AppState());
-  final url = 'https://petshop-production-cd0a.up.railway.app';
 
   Future<void> signUpPress(
       {required String correo, required String password}) async {
     final response = await http.post(
-      Uri.parse('$url/login'),
+      Uri.parse('$api/login'),
       headers: {"Content-Type": "application/json"},
       body: json.encode(
         {
@@ -37,7 +36,7 @@ class AuthSignUpNotifier extends StateNotifier<AppState> {
       state = state.copyWith(loadingHome: true);
     }
     final response = await http.get(
-      Uri.parse('$url/products'),
+      Uri.parse('$api/products'),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $jwtToken',
@@ -59,9 +58,64 @@ class AuthSignUpNotifier extends StateNotifier<AppState> {
     }
   }
 
+  Future<void> sendSale(
+      List<ProductModel> products, BuildContext context) async {
+    const String username = 'deam10hw@gmail.com';
+    const String paymentMethod = 'CASH';
+
+    // Construye la lista `saleDetails`
+    final saleDetails = products.map((product) {
+      return {
+        "productBarCode": product.barCode,
+        "quantity": product.stock,
+      };
+    }).toList();
+
+    // JSON que será enviado
+    final requestBody = {
+      "username": username,
+      "paymentMethod": paymentMethod,
+      "saleDetails": saleDetails,
+    };
+
+    try {
+      final response = await http.post(
+        Uri.parse('$api/sales'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $jwtToken',
+        },
+        body: jsonEncode(requestBody),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        SsAlert.showAutoDismissSnackbar(
+          // ignore: use_build_context_synchronously
+          context,
+          Colors.green,
+          'Venta realizada con éxito',
+        );
+      } else {
+        SsAlert.showAutoDismissSnackbar(
+          // ignore: use_build_context_synchronously
+          context,
+          Colors.red,
+          'Error al realizar la venta',
+        );
+      }
+    } catch (e) {
+      SsAlert.showAutoDismissSnackbar(
+        // ignore: use_build_context_synchronously
+        context,
+        Colors.red,
+        'Error al realizar la venta: $e',
+      );
+    }
+  }
+
   Future<ProductModel?> searchProduct(String barcode) async {
     final response = await http.get(
-      Uri.parse('$url/products/$barcode'),
+      Uri.parse('$api/products/$barcode'),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $jwtToken',
@@ -91,7 +145,7 @@ class AuthSignUpNotifier extends StateNotifier<AppState> {
     state = state.copyWith(loadingHome: true);
     try {
       final response = await http.post(
-        Uri.parse('$url/products'),
+        Uri.parse('$api/products'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $jwtToken',
@@ -104,7 +158,7 @@ class AuthSignUpNotifier extends StateNotifier<AppState> {
         }),
       );
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 201) {
         // Registro exitoso
         // print('Producto registrado con éxito: ${response.body}');
         SsAlert.showAutoDismissSnackbar(
@@ -137,7 +191,7 @@ class AuthSignUpNotifier extends StateNotifier<AppState> {
       List<Map<String, dynamic>> saleDetailsJson =
           sales.map((sale) => sale.toJson()).toList();
       final response = await http.post(
-        Uri.parse('http://$url:8080/sales'),
+        Uri.parse('http://$api:8080/sales'),
         headers: {"Content-Type": "application/json"},
         body: json.encode({
           "saleDetails": saleDetailsJson,
@@ -163,7 +217,7 @@ class AuthSignUpNotifier extends StateNotifier<AppState> {
       List<Map<String, dynamic>> saleDetailsJson =
           sales.map((sale) => sale.toJson()).toList();
       final response = await http.get(
-        Uri.parse('http://$url:8080/sales'),
+        Uri.parse('http://$api:8080/sales'),
       );
       if (response.statusCode == 200) {
         print('Venta enviada con éxito');

@@ -8,6 +8,7 @@ class SsCard extends StatelessWidget {
   final BorderRadiusGeometry? borderRadius;
   final Color? boderColor;
   final double? borderWidth;
+  final List<BoxShadow>? boxShadow;
   const SsCard({
     required this.child,
     this.backgroundColor,
@@ -16,6 +17,7 @@ class SsCard extends StatelessWidget {
     this.borderRadius,
     this.boderColor,
     this.borderWidth,
+    this.boxShadow,
     super.key,
   });
 
@@ -30,6 +32,7 @@ class SsCard extends StatelessWidget {
         ),
         color: backgroundColor,
         borderRadius: borderRadius ?? BorderRadius.circular(10),
+        boxShadow: boxShadow,
       ),
       child: Padding(
         padding: padding ?? const EdgeInsets.all(8.0),

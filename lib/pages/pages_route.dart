@@ -5,5 +5,4 @@ final pageRoute = [
   SsRoute(page: HomeRoute.page),
   SsRoute(page: ProductAddRoute.page),
   SsRoute(page: ProductEditRoute.page),
-  SsRoute(page: SaleRoute.page)
 ];

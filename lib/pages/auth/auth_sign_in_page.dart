@@ -2,6 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:facturacion/pages/app_provider.dart';
 import 'package:facturacion/routes/app_router.dart';
 import 'package:facturacion/routes/app_router.gr.dart';
+import 'package:facturacion/shared/constants/constants.dart';
 import 'package:facturacion/widgets/ss_alert.dart';
 import 'package:facturacion/widgets/ss_button_core.dart';
 import 'package:facturacion/widgets/ss_textfield.dart';
@@ -20,6 +21,16 @@ class _AuthSignInPageState extends ConsumerState<AuthSignInPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   bool loading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+      if (jwtToken != null && jwtToken!.isNotEmpty) {
+        await appRouter.push(const HomeRoute());
+      }
+    });
+  }
 
   Future<void> signUpPress() async {
     loading = true;
@@ -48,11 +59,15 @@ class _AuthSignInPageState extends ConsumerState<AuthSignInPage> {
             password: passwordController.text,
           );
       appRouter.push(const HomeRoute());
-      SsAlert.showAutoDismissSnackbar(
-          context, Colors.green, 'Inicio de sesión exitoso');
+      if (mounted) {
+        SsAlert.showAutoDismissSnackbar(
+            context, Colors.green, 'Inicio de sesión exitoso');
+      }
     } catch (e) {
-      SsAlert.showAutoDismissSnackbar(
-          context, Colors.red, 'Error al iniciar sesión');
+      if (mounted) {
+        SsAlert.showAutoDismissSnackbar(
+            context, Colors.red, 'Error al iniciar sesión');
+      }
     } finally {
       loading = false;
       setState(() {});
