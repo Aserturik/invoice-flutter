@@ -32,29 +32,84 @@ class _HomePageState extends ConsumerState<SaleDetailsPage> {
       // ),
       appBar: AppBar(
         backgroundColor: SsColors.orange,
-        title: const Text('Ventas'),
+        title: const Text('Detalles de venta'),
       ),
       body: Column(
-          children: widget.saleDetails
-              .map((e) => Container(
-                    decoration: const BoxDecoration(
-                        border: Border(
-                      bottom: BorderSide(
-                        color: Colors.grey,
-                        width: 1,
-                      ),
-                    )),
-                    child: Column(
-                      children: [
-                        Text(e.productName),
-                        Text(e.quantity.toString()),
-                        Text(e.productBarCode.toString()),
-                        Text(e.unitPrice.toMoney()),
-                        Text(e.total.toMoney()),
-                      ],
-                    ),
-                  ))
-              .toList()),
+        children: [
+          Expanded(
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: widget.saleDetails
+                    .map((e) => Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 15),
+                          child: Container(
+                            decoration: const BoxDecoration(
+                                border: Border(
+                              bottom: BorderSide(
+                                color: Colors.grey,
+                                width: 1,
+                              ),
+                            )),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                Column(
+                                  children: [
+                                    Text(e.productName),
+                                    Text(e.productBarCode.toString()),
+                                  ],
+                                ),
+                                Column(
+                                  children: [
+                                    Text('Cantiadad: ${e.quantity.toString()}'),
+                                    Text(
+                                        'Precio unitario: ${e.unitPrice.toMoney()}'),
+                                    Text('Total venta: ${e.total.toMoney()}'),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ))
+                    .toList()),
+          ),
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: const BoxDecoration(
+              border: Border(
+                top: BorderSide(
+                  color: Colors.grey,
+                  width: 1,
+                ),
+              ),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Total venta: ',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                  ),
+                ),
+                Text(
+                  widget.saleDetails.isEmpty
+                      ? 0.0.toMoney()
+                      : widget.saleDetails
+                          .map((e) => e.total)
+                          .reduce((value, element) => value + element)
+                          .toMoney(),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                  ),
+                ),
+              ],
+            ),
+          )
+        ],
+      ),
     );
   }
 }

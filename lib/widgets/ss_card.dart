@@ -9,6 +9,7 @@ class SsCard extends StatelessWidget {
   final Color? boderColor;
   final double? borderWidth;
   final List<BoxShadow>? boxShadow;
+  final double? height;
   const SsCard({
     required this.child,
     this.backgroundColor,
@@ -18,12 +19,14 @@ class SsCard extends StatelessWidget {
     this.boderColor,
     this.borderWidth,
     this.boxShadow,
+    this.height,
     super.key,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
+      height: height,
       width: width,
       decoration: BoxDecoration(
         border: Border.all(

@@ -2,13 +2,13 @@ import 'package:auto_route/auto_route.dart';
 import 'package:facturacion/models/client_model.dart';
 import 'package:facturacion/models/product_model.dart';
 import 'package:facturacion/pages/app_provider.dart';
-import 'package:facturacion/pages/home_page/home_provider.dart';
+import 'package:facturacion/utils/date_extension.dart';
 import 'package:facturacion/utils/double_extension.dart';
 import 'package:facturacion/widgets/ss_alert.dart';
 import 'package:facturacion/widgets/ss_button.dart';
 import 'package:facturacion/widgets/ss_card.dart';
 import 'package:facturacion/widgets/ss_colors.dart';
-import 'package:facturacion/widgets/ss_dropdown.dart';
+import 'package:facturacion/widgets/ss_dateinput.dart';
 import 'package:facturacion/widgets/ss_list_view.dart';
 import 'package:facturacion/widgets/ss_tabs.dart';
 import 'package:facturacion/widgets/ss_textfield.dart';
@@ -17,17 +17,21 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 @RoutePage()
-class SalePage extends ConsumerStatefulWidget {
-  const SalePage({super.key});
+class BuyPage extends ConsumerStatefulWidget {
+  const BuyPage({super.key});
 
   @override
-  ConsumerState<SalePage> createState() => _HomePageState();
+  ConsumerState<BuyPage> createState() => _HomePageState();
 }
 
-class _HomePageState extends ConsumerState<SalePage> {
+class _HomePageState extends ConsumerState<BuyPage> {
   ProductModel? productSelected;
   final TextEditingController _search = TextEditingController();
   final TextEditingController _stock = TextEditingController(text: '1');
+  final TextEditingController _price = TextEditingController();
+  final TextEditingController _expirationDate = TextEditingController();
+  final TextEditingController _purchaseNumber = TextEditingController();
+  final TextEditingController _batchNumber = TextEditingController();
   bool loadingSales = false;
   List<SaleModel> salesList = [];
   List<ProductModel> productsSearch = [];
@@ -55,18 +59,9 @@ class _HomePageState extends ConsumerState<SalePage> {
     final bool loading = ref.watch(appProvider).loadingHome;
     final List<ProductModel> products = ref.watch(appProvider).products ?? [];
     return Scaffold(
-      // floatingActionButton: FloatingActionButton(
-      //   backgroundColor: Colors.green,
-      //   child: const Icon(Icons.add),
-      //   onPressed: () async {
-      //     await ref.read(appProvider.notifier).sales(
-      //           sales: productsSelected,
-      //         );
-      //   },
-      // ),
       appBar: AppBar(
         backgroundColor: SsColors.orange,
-        title: const Text('Ventas'),
+        title: const Text('Compra'),
       ),
       body: loading
           ? const Center(child: CircularProgressIndicator())
@@ -166,7 +161,7 @@ class _HomePageState extends ConsumerState<SalePage> {
                                           children: [
                                             Text(
                                               productsSearch[index]
-                                                  .salePrice
+                                                  .purchasePrice
                                                   .toMoney(),
                                             ),
                                             const SizedBox(
@@ -177,6 +172,11 @@ class _HomePageState extends ConsumerState<SalePage> {
                                               text: 'Añadir',
                                               fontSize: 15,
                                               onPressed: () async {
+                                                _price.text =
+                                                    productsSearch[index]
+                                                        .purchasePrice
+                                                        .toInt()
+                                                        .toString();
                                                 await showDialog<
                                                     Map<String, dynamic>>(
                                                   context: context,
@@ -218,6 +218,26 @@ class _HomePageState extends ConsumerState<SalePage> {
                                                                     .digitsOnly,
                                                               ],
                                                             ),
+                                                            const Text(
+                                                              'Precio costo',
+                                                              style: TextStyle(
+                                                                fontSize: 20,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                              ),
+                                                            ),
+                                                            SsTextfield(
+                                                              controller:
+                                                                  _price,
+                                                              keyboardType:
+                                                                  TextInputType
+                                                                      .number,
+                                                              inputFormatters: [
+                                                                FilteringTextInputFormatter
+                                                                    .digitsOnly,
+                                                              ],
+                                                            ),
                                                             const SizedBox(
                                                               height: 10,
                                                             ),
@@ -237,28 +257,31 @@ class _HomePageState extends ConsumerState<SalePage> {
                                                                   );
                                                                   return;
                                                                 }
-                                                                if (int.parse(_stock
-                                                                        .text) >
-                                                                    productsSearch[
-                                                                            index]
-                                                                        .stock) {
+                                                                if (double.parse(
+                                                                        _price
+                                                                            .text) <=
+                                                                    0) {
                                                                   SsAlert
                                                                       .showAutoDismissSnackbar(
                                                                     context,
                                                                     Colors.red,
-                                                                    'No hay suficiente stock',
+                                                                    'Precio de compra no válido',
                                                                   );
                                                                   return;
                                                                 }
-
                                                                 productsSelected
                                                                     .add(
                                                                   productsSearch[
                                                                           index]
                                                                       .copyWith(
-                                                                    stock: int.parse(
-                                                                        _stock
-                                                                            .text),
+                                                                    stock: int
+                                                                        .parse(
+                                                                      _stock
+                                                                          .text,
+                                                                    ),
+                                                                    purchasePrice:
+                                                                        double.parse(
+                                                                            _price.text),
                                                                   ),
                                                                 );
                                                                 if (_search.text
@@ -317,7 +340,7 @@ class _HomePageState extends ConsumerState<SalePage> {
                   ),
                 ),
                 SsTab(
-                  title: 'Venta',
+                  title: 'Compra',
                   child: Column(
                     children: [
                       const SizedBox(
@@ -330,7 +353,7 @@ class _HomePageState extends ConsumerState<SalePage> {
                             itemCount: productsSelected.length,
                             itemBuilder: (context, index) {
                               String total =
-                                  (productsSelected[index].salePrice *
+                                  (productsSelected[index].purchasePrice *
                                           productsSelected[index].stock)
                                       .toMoney();
                               return Padding(
@@ -432,57 +455,63 @@ class _HomePageState extends ConsumerState<SalePage> {
                                           0,
                                           (sum, product) =>
                                               sum +
-                                              product.salePrice.toInt() *
+                                              product.purchasePrice.toInt() *
                                                   product.stock)
                                       .toDouble()
                                       .toMoney()),
                                 ],
                               ),
-                              const SizedBox(
-                                height: 20,
+                              const SizedBox(height: 20),
+                              SsTextfield(
+                                labelText: 'Numero de factura',
+                                controller: _purchaseNumber,
                               ),
-                              SsDropdown<ClientModel>(
-                                options: ref.read(homeProvider).clients ?? [],
-                                itemBuilder: (item) => Text(item.email),
-                                onChanged: (value) {
-                                  clientModel = value;
-                                },
-                                hint: 'Elegir empleado',
-                                initialValue: clientModel,
+                              const SizedBox(height: 10),
+                              SsTextfield(
+                                labelText: 'Numero de lote',
+                                controller: _batchNumber,
                               ),
-                              const SizedBox(
-                                height: 20,
-                              ),
-                              SsDropdown<ClientModel>(
-                                options: ref.read(homeProvider).clients ?? [],
-                                itemBuilder: (item) => Text(item.email),
-                                onChanged: (value) {
-                                  clientModel = value;
-                                },
-                                hint: 'Elegir cliente',
-                                initialValue: clientModel,
+                              const SizedBox(height: 10),
+                              SsDateInput(
+                                labelText: 'Fecha de vencimiento',
+                                controller: _expirationDate,
                               ),
                               const SizedBox(height: 20),
                               SsButton(
                                 loading: loading || loadingSales,
-                                text: 'Realizar venta',
+                                text: 'Realizar compra',
                                 onPressed: () async {
                                   if (productsSelected.isEmpty) {
                                     SsAlert.showAutoDismissSnackbar(context,
                                         Colors.red, 'No hay productos');
                                     return;
                                   }
-                                  if (clientModel?.email == null ||
-                                      clientModel!.email.isEmpty) {
+                                  if (_purchaseNumber.text.isEmpty) {
+                                    SsAlert.showAutoDismissSnackbar(context,
+                                        Colors.red, 'Numero de factura vacio');
+                                    return;
+                                  }
+                                  if (_batchNumber.text.isEmpty) {
+                                    SsAlert.showAutoDismissSnackbar(context,
+                                        Colors.red, 'Numero de lote vacio');
+                                    return;
+                                  }
+                                  if (_expirationDate.text.isEmpty) {
                                     SsAlert.showAutoDismissSnackbar(
-                                        context, Colors.red, 'No hay cliente');
+                                        context,
+                                        Colors.red,
+                                        'Fecha de vencimiento vacia');
                                     return;
                                   }
                                   setState(() => loadingSales = true);
-                                  await ref.read(appProvider.notifier).sendSale(
-                                      productsSelected,
-                                      context,
-                                      clientModel!.email);
+                                  await ref.read(appProvider.notifier).sendBuy(
+                                        products: productsSelected,
+                                        batchNumber: _batchNumber.text,
+                                        purchaseNumber: _purchaseNumber.text,
+                                        expirationDate: DateTimeFormatting
+                                            .convertToIsoFormat(
+                                                _expirationDate.text),
+                                      );
                                   setState(() => loadingSales = false);
                                 },
                                 fontSize: 16,

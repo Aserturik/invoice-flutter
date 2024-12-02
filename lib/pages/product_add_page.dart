@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:facturacion/pages/app_provider.dart';
 import 'package:facturacion/routes/app_router.dart';
+import 'package:facturacion/widgets/ss_alert.dart';
 import 'package:facturacion/widgets/ss_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -21,10 +22,10 @@ class ProductAddPage extends ConsumerStatefulWidget {
 class _ProductAddPageState extends ConsumerState<ProductAddPage> {
   final TextEditingController _barCodeController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
-  // final TextEditingController _stockController = TextEditingController();
   final TextEditingController _purchasePriceController =
       TextEditingController();
   final TextEditingController _salePriceController = TextEditingController();
+  final TextEditingController _urlController = TextEditingController();
 
   @override
   void initState() {
@@ -109,20 +110,38 @@ class _ProductAddPageState extends ConsumerState<ProductAddPage> {
                   FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
                 ],
               ),
+              const SizedBox(height: 10),
+              const Text('Url Imagen'),
+              TextField(
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Url',
+                ),
+                controller: _urlController,
+                keyboardType: TextInputType.text,
+              ),
               const SizedBox(height: 20),
               SsButton(
                 fontSize: 20,
                 loading: loading,
                 enable: !loading,
                 onPressed: () async {
+                  if (_barCodeController.text.isEmpty ||
+                      _nameController.text.isEmpty ||
+                      _purchasePriceController.text.isEmpty ||
+                      _salePriceController.text.isEmpty ||
+                      _urlController.text.isEmpty) {
+                    SsAlert.showAutoDismissSnackbar(context, Colors.red,
+                        'Todos los campos son obligatorios');
+                    return;
+                  }
                   await ref.read(appProvider.notifier).addProduct(
-                        context: context,
                         barcode: _barCodeController.text,
                         name: _nameController.text,
                         purchasePrice:
                             double.parse(_purchasePriceController.text),
                         salePrice: double.parse(_salePriceController.text),
-                        // stock: int.parse(_stockController.text),
+                        urlImage: _urlController.text,
                       );
                   appRouter.back();
                   await ref.read(appProvider.notifier).fetchData();

@@ -164,7 +164,9 @@ class _AuthSignInPageState extends ConsumerState<AuthSignInPage> {
                     const SizedBox(height: 20),
                     Center(
                       child: InkWell(
-                        onTap: () {},
+                        onTap: () {
+                          appRouter.push(const AuthSignUpRoute());
+                        },
                         child: Container(
                           decoration: const BoxDecoration(
                             border: Border(
@@ -175,7 +177,7 @@ class _AuthSignInPageState extends ConsumerState<AuthSignInPage> {
                             ),
                           ),
                           child: const Text(
-                            '  Olvide mi contraseña  ',
+                            '  No tienes cuenta? Registrate  ',
                             style: TextStyle(color: Colors.white),
                           ),
                         ),

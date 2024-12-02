@@ -5,7 +5,9 @@ import 'package:facturacion/routes/app_router.gr.dart';
 import 'package:facturacion/utils/double_extension.dart';
 import 'package:facturacion/widgets/ss_card.dart';
 import 'package:facturacion/widgets/ss_colors.dart';
+import 'package:facturacion/widgets/ss_image.dart';
 import 'package:facturacion/widgets/ss_list_view.dart';
+import 'package:facturacion/widgets/ss_textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -20,6 +22,7 @@ class HomeProducts extends ConsumerStatefulWidget {
 }
 
 class _HomeProductsState extends ConsumerState<HomeProducts> {
+  final TextEditingController _searchController = TextEditingController();
   Future<void> scanBarCode({loading = true}) async {
     FlutterBarcodeScanner.getBarcodeStreamReceiver(
       "#ff6666",
@@ -40,55 +43,80 @@ class _HomeProductsState extends ConsumerState<HomeProducts> {
   @override
   Widget build(BuildContext context) {
     final bool loading = ref.watch(appProvider).loadingHome;
-    final List<ProductModel?>? products = ref.watch(appProvider).products;
+    final List<ProductModel?>? productsTmp = ref.watch(appProvider).products;
+    final List<ProductModel?>? products = productsTmp?.where((element) {
+      if (_searchController.text.isEmpty) {
+        return true;
+      }
+      return element!.name
+          .toLowerCase()
+          .contains(_searchController.text.toLowerCase());
+    }).toList();
     return loading
         ? const Center(child: CircularProgressIndicator())
-        : SsListView(
-            onRefresh: () {
-              return ref.read(appProvider.notifier).fetchData();
-            },
-            itemBuilder: (context, index) {
-              final productOne = products![index * 2];
-              ProductModel? productTwo;
-              if (index * 2 + 1 < products.length) {
-                productTwo = products[index * 2 + 1];
-              }
-              return Padding(
+        : Column(
+            children: [
+              Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: InkWell(
-                        onTap: () {
-                          appRouter.push(ProductEditRoute(product: productOne));
-                        },
-                        child: _ViewProduct(
-                          product: productOne,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    if (productTwo != null)
-                      Expanded(
-                        child: InkWell(
-                          onTap: () {
-                            appRouter
-                                .push(ProductEditRoute(product: productTwo));
-                          },
-                          child: _ViewProduct(
-                            product: productTwo,
-                          ),
-                        ),
-                      )
-                    else
-                      Expanded(
-                        child: Container(),
-                      ),
-                  ],
+                child: SsTextfield(
+                  controller: _searchController,
+                  labelText: 'Buscar producto',
+                  onChanged: (value) {
+                    setState(() {});
+                  },
                 ),
-              );
-            },
-            itemCount: ((products?.length ?? 0) / 2).ceil(),
+              ),
+              Expanded(
+                child: SsListView(
+                  onRefresh: () {
+                    return ref.read(appProvider.notifier).fetchData();
+                  },
+                  itemBuilder: (context, index) {
+                    final productOne = products![index * 2];
+                    ProductModel? productTwo;
+                    if (index * 2 + 1 < products.length) {
+                      productTwo = products[index * 2 + 1];
+                    }
+                    return Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: InkWell(
+                              onTap: () {
+                                appRouter.push(
+                                    ProductEditRoute(product: productOne));
+                              },
+                              child: _ViewProduct(
+                                product: productOne,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          if (productTwo != null)
+                            Expanded(
+                              child: InkWell(
+                                onTap: () {
+                                  appRouter.push(
+                                      ProductEditRoute(product: productTwo));
+                                },
+                                child: _ViewProduct(
+                                  product: productTwo,
+                                ),
+                              ),
+                            )
+                          else
+                            Expanded(
+                              child: Container(),
+                            ),
+                        ],
+                      ),
+                    );
+                  },
+                  itemCount: ((products?.length ?? 0) / 2).ceil(),
+                ),
+              ),
+            ],
           );
   }
 }
@@ -116,14 +144,13 @@ class _ViewProduct extends StatelessWidget {
         padding: const EdgeInsets.all(0),
         child: Column(
           children: [
-            const Padding(
-              padding: EdgeInsets.all(15),
-              child: Image(
-                image: AssetImage(
-                  'assets/imagen/monello.png',
-                ),
-                height: 50,
-                fit: BoxFit.fitWidth,
+            Padding(
+              padding: const EdgeInsets.all(0),
+              child: SsImage(
+                height: 150,
+                width: double.infinity,
+                imageUrl: product?.urlImage ?? '',
+                fit: BoxFit.contain,
               ),
             ),
             Container(
@@ -139,6 +166,7 @@ class _ViewProduct extends StatelessWidget {
                       style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w600,
+                        fontSize: 15,
                       ),
                     ),
                     Text(

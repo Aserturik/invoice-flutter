@@ -1,6 +1,5 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:facturacion/models/client_model.dart';
-import 'package:facturacion/pages/app_provider.dart';
 import 'package:facturacion/pages/home_page/home_provider.dart';
 import 'package:facturacion/routes/app_router.dart';
 import 'package:facturacion/widgets/ss_button.dart';
@@ -11,7 +10,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 @RoutePage()
 class ClientAddPage extends ConsumerStatefulWidget {
+  final ClientModel? client;
   const ClientAddPage({
+    this.client,
     super.key,
   });
 
@@ -31,15 +32,23 @@ class _ProductAddPageState extends ConsumerState<ClientAddPage> {
   @override
   void initState() {
     super.initState();
+    if (widget.client != null) {
+      _nameController.text = widget.client!.name;
+      _documentNumberController.text = widget.client!.documentNumber.toString();
+      _phoneController.text = widget.client!.phone;
+      _emailController.text = widget.client!.email;
+      cc = widget.client!.documentType;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final loading = ref.watch(appProvider).loadingHome;
+    // final loading = ref.watch(appProvider).loadingHome;
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color.fromRGBO(238, 106, 34, 1),
-        title: const Text('Nuevo Cliente'),
+        title: Text(
+            widget.client == null ? 'Nuevo Cliente' : 'Actualizar Cliente'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -96,8 +105,8 @@ class _ProductAddPageState extends ConsumerState<ClientAddPage> {
               const SizedBox(height: 10),
               const Text('Tipo de documento'),
               SsDropdown(
-                options: const ['CC', 'CE'],
-                initialValue: 'CC',
+                options: const ['CC', 'CE', 'TI'],
+                initialValue: cc,
                 hint: 'Tipo de documento',
                 onChanged: (value) => cc = value.toString(),
               ),
@@ -110,26 +119,39 @@ class _ProductAddPageState extends ConsumerState<ClientAddPage> {
                   setState(() {
                     loadingClient = true;
                   });
-                  await ref.read(homeProvider.notifier).addClient(
-                      context: context,
-                      client: ClientModel(
-                        id: 1,
-                        name: _nameController.text,
-                        documentNumber:
-                            int.parse(_documentNumberController.text),
-                        email: _emailController.text,
-                        phone: _phoneController.text,
-                        documentType: cc,
-                      )
-                      // stock: int.parse(_stockController.text),
-                      );
+                  if (widget.client == null) {
+                    await ref.read(homeProvider.notifier).addClient(
+                            client: ClientModel(
+                          id: 1,
+                          name: _nameController.text,
+                          documentNumber:
+                              int.parse(_documentNumberController.text),
+                          email: _emailController.text,
+                          phone: _phoneController.text,
+                          documentType: cc,
+                        )
+                            // stock: int.parse(_stockController.text),
+                            );
+                  } else {
+                    await ref.read(homeProvider.notifier).updateClient(
+                          client: ClientModel(
+                            id: widget.client!.id,
+                            name: _nameController.text,
+                            documentNumber:
+                                int.parse(_documentNumberController.text),
+                            email: _emailController.text,
+                            phone: _phoneController.text,
+                            documentType: cc,
+                          ),
+                        );
+                  }
                   setState(() {
                     loadingClient = false;
                   });
                   appRouter.back();
                   await ref.read(homeProvider.notifier).fetchDataClients();
                 },
-                text: 'Añadir',
+                text: widget.client == null ? 'Añadir' : 'Actualizar',
                 backgroundColor: const Color.fromRGBO(238, 106, 34, 1),
               )
             ],

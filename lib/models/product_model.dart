@@ -5,6 +5,7 @@ class ProductModel {
   final double purchasePrice;
   final double salePrice;
   final int stock;
+  final String urlImage;
 
   ProductModel({
     required this.id,
@@ -13,6 +14,7 @@ class ProductModel {
     required this.purchasePrice,
     required this.salePrice,
     required this.stock,
+    required this.urlImage,
   });
 
   factory ProductModel.fromJson(Map<String, dynamic> json) {
@@ -23,6 +25,7 @@ class ProductModel {
       purchasePrice: json['purchasePrice'],
       salePrice: json['salePrice'],
       stock: json['stock'],
+      urlImage: json['urlImage'],
     );
   }
 
@@ -37,6 +40,7 @@ class ProductModel {
     double? purchasePrice,
     double? salePrice,
     int? stock,
+    String? urlImage,
   }) {
     return ProductModel(
       id: id ?? this.id,
@@ -45,6 +49,7 @@ class ProductModel {
       purchasePrice: purchasePrice ?? this.purchasePrice,
       salePrice: salePrice ?? this.salePrice,
       stock: stock ?? this.stock,
+      urlImage: urlImage ?? this.urlImage,
     );
   }
 }

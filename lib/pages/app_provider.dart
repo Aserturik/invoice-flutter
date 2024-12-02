@@ -51,9 +51,6 @@ class AuthSignUpNotifier extends StateNotifier<AppState> {
       state = state.copyWith(
         products: products,
       );
-      print('Productos cargados correctamente');
-    } else {
-      print('Failed to fetch products');
     }
     if (loading) {
       state = state.copyWith(loadingHome: false);
@@ -66,8 +63,6 @@ class AuthSignUpNotifier extends StateNotifier<AppState> {
     String email,
   ) async {
     const String paymentMethod = 'CASH';
-    print(email);
-    // Construye la lista `saleDetails`
     final saleDetails = products.map((product) {
       return {
         "productBarCode": product.barCode,
@@ -75,7 +70,6 @@ class AuthSignUpNotifier extends StateNotifier<AppState> {
       };
     }).toList();
 
-    // JSON que será enviado
     final requestBody = {
       "username": email,
       "paymentMethod": paymentMethod,
@@ -118,6 +112,60 @@ class AuthSignUpNotifier extends StateNotifier<AppState> {
     }
   }
 
+  Future<void> sendBuy({
+    required List<ProductModel> products,
+    required String batchNumber,
+    required String purchaseNumber,
+    required String expirationDate,
+  }) async {
+    final purchaseDetails = products.map((product) {
+      return {
+        "productBarCode": product.barCode,
+        "unitPrice": product.purchasePrice,
+        "quantity": product.stock,
+        "batch": {
+          "batchNumber": batchNumber,
+          "expirationDate": expirationDate,
+        }
+      };
+    }).toList();
+    final requestBody = {
+      "purchaseNumber": purchaseNumber,
+      "purchaseDetails": purchaseDetails,
+    };
+    try {
+      final response = await http.post(
+        Uri.parse('$api/purchases'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $jwtToken',
+        },
+        body: jsonEncode(requestBody),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        SsAlert.showAutoDismissSnackbar(
+          appRouter.navigatorKey.currentContext!,
+          Colors.green,
+          'Compra realizada con éxito',
+        );
+        appRouter.popAndPush(const HomeRoute());
+      } else {
+        SsAlert.showAutoDismissSnackbar(
+          appRouter.navigatorKey.currentContext!,
+          Colors.red,
+          'Error al realizar la compra: ${response.statusCode}',
+        );
+      }
+    } catch (e) {
+      SsAlert.showAutoDismissSnackbar(
+        appRouter.navigatorKey.currentContext!,
+        Colors.red,
+        'Error al realizar la compra: $e',
+      );
+    }
+  }
+
   Future<ProductModel?> searchProduct(String barcode) async {
     final response = await http.get(
       Uri.parse('$api/products/$barcode'),
@@ -135,7 +183,12 @@ class AuthSignUpNotifier extends StateNotifier<AppState> {
       );
       return product;
     } else {
-      print('Failed to fetch product');
+      SsAlert.showAutoDismissSnackbar(
+        // ignore: use_build_context_synchronously
+        appRouter.navigatorKey.currentContext!,
+        Colors.red,
+        'Producto no encontrado',
+      );
       return null;
     }
   }
@@ -145,7 +198,7 @@ class AuthSignUpNotifier extends StateNotifier<AppState> {
     required String barcode,
     required double purchasePrice,
     required double salePrice,
-    required BuildContext context,
+    required String urlImage,
   }) async {
     state = state.copyWith(loadingHome: true);
     try {
@@ -160,29 +213,72 @@ class AuthSignUpNotifier extends StateNotifier<AppState> {
           "barCode": barcode,
           "purchasePrice": purchasePrice,
           "salePrice": salePrice,
+          "urlImage": urlImage,
         }),
       );
 
       if (response.statusCode == 201) {
-        // Registro exitoso
-        // print('Producto registrado con éxito: ${response.body}');
         SsAlert.showAutoDismissSnackbar(
-            // ignore: use_build_context_synchronously
-            context,
-            Colors.green,
-            'Producto registrado con éxito');
+          appRouter.navigatorKey.currentContext!,
+          Colors.green,
+          'Producto registrado con éxito',
+        );
       } else {
-        // Error en el registro
-        SsAlert.showAutoDismissSnackbar(
-            // ignore: use_build_context_synchronously
-            context,
-            Colors.green,
-            'Error al registrar el producto');
-        // print(
-        //     'Error al registrar el producto: ${response.statusCode} - ${response.body}');
+        SsAlert.showAutoDismissSnackbar(appRouter.navigatorKey.currentContext!,
+            Colors.green, 'Error al registrar el producto');
       }
     } catch (e) {
-      // print(e);
+      SsAlert.showAutoDismissSnackbar(
+        appRouter.navigatorKey.currentContext!,
+        Colors.red,
+        'Error al registrar el producto: $e',
+      );
+    } finally {
+      state = state.copyWith(loadingHome: false);
+    }
+  }
+
+  Future<void> updateProduct({
+    required int id,
+    required String name,
+    required String barcode,
+    required double purchasePrice,
+    required double salePrice,
+    required String urlImage,
+  }) async {
+    state = state.copyWith(loadingHome: true);
+    try {
+      final response = await http.put(
+        Uri.parse('$api/products'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $jwtToken',
+        },
+        body: jsonEncode({
+          "id": id,
+          "name": name,
+          "barCode": barcode,
+          "purchasePrice": purchasePrice,
+          "salePrice": salePrice,
+          "urlImage": urlImage,
+        }),
+      );
+      if (response.statusCode == 200) {
+        SsAlert.showAutoDismissSnackbar(
+          appRouter.navigatorKey.currentContext!,
+          Colors.green,
+          'Producto registrado con éxito',
+        );
+      } else {
+        SsAlert.showAutoDismissSnackbar(appRouter.navigatorKey.currentContext!,
+            Colors.green, 'Error al registrar el producto');
+      }
+    } catch (e) {
+      SsAlert.showAutoDismissSnackbar(
+        appRouter.navigatorKey.currentContext!,
+        Colors.red,
+        'Error al registrar el producto: $e',
+      );
     } finally {
       state = state.copyWith(loadingHome: false);
     }
@@ -202,35 +298,19 @@ class AuthSignUpNotifier extends StateNotifier<AppState> {
           "saleDetails": saleDetailsJson,
         }),
       );
-      if (response.statusCode == 200) {
-        print('Venta enviada con éxito');
-      } else {
-        print('Error al enviar la venta: ${response.body}');
+      if (response.statusCode != 200) {
+        SsAlert.showAutoDismissSnackbar(
+          appRouter.navigatorKey.currentContext!,
+          Colors.red,
+          'Error al enviar la venta: ${response.body}',
+        );
       }
     } catch (e) {
-      print(e);
-    } finally {
-      state = state.copyWith(loadingHome: false);
-    }
-  }
-
-  Future<void> postSales({
-    required List<SaleModel> sales,
-  }) async {
-    state = state.copyWith(loadingHome: true);
-    try {
-      List<Map<String, dynamic>> saleDetailsJson =
-          sales.map((sale) => sale.toJson()).toList();
-      final response = await http.get(
-        Uri.parse('http://$api:8080/sales'),
+      SsAlert.showAutoDismissSnackbar(
+        appRouter.navigatorKey.currentContext!,
+        Colors.red,
+        'Error al enviar la venta: $e',
       );
-      if (response.statusCode == 200) {
-        print('Venta enviada con éxito');
-      } else {
-        print('Error al enviar la venta: ${response.body}');
-      }
-    } catch (e) {
-      print(e);
     } finally {
       state = state.copyWith(loadingHome: false);
     }
