@@ -9,8 +9,8 @@ import 'package:facturacion/widgets/ss_image.dart';
 import 'package:facturacion/widgets/ss_list_view.dart';
 import 'package:facturacion/widgets/ss_textfield.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:simple_barcode_scanner/simple_barcode_scanner.dart';
 
 class HomeProducts extends ConsumerStatefulWidget {
   const HomeProducts({
@@ -24,20 +24,33 @@ class HomeProducts extends ConsumerStatefulWidget {
 class _HomeProductsState extends ConsumerState<HomeProducts> {
   final TextEditingController _searchController = TextEditingController();
   Future<void> scanBarCode({loading = true}) async {
-    FlutterBarcodeScanner.getBarcodeStreamReceiver(
-      "#ff6666",
-      "Cancel",
-      true,
-      ScanMode.BARCODE,
-    )?.listen((barcode) async {
-      final product =
-          await ref.read(appProvider.notifier).searchProduct(barcode);
-      if (product != null) {
-        appRouter.push(ProductEditRoute(product: product));
-      } else {
-        appRouter.push(ProductAddRoute(barcode: barcode));
-      }
-    });
+    // FlutterBarcodeScanner.getBarcodeStreamReceiver(
+    //   "#ff6666",
+    //   "Cancel",
+    //   true,
+    //   ScanMode.BARCODE,
+    // )?.listen((barcode) async {
+    //   final product =
+    //       await ref.read(appProvider.notifier).searchProduct(barcode);
+    //   if (product != null) {
+    //     appRouter.push(ProductEditRoute(product: product));
+    //   } else {
+    //     appRouter.push(ProductAddRoute(barcode: barcode));
+    //   }
+    // });
+    String? res = await SimpleBarcodeScanner.scanBarcode(
+      context,
+      barcodeAppBar: const BarcodeAppBar(
+        appBarTitle: 'Test',
+        centerTitle: false,
+        enableBackButton: true,
+        backButtonIcon: Icon(Icons.arrow_back_ios),
+      ),
+      isShowFlashIcon: true,
+      delayMillis: 2000,
+      cameraFace: CameraFace.front,
+    );
+    appRouter.push(ProductAddRoute(barcode: res));
   }
 
   @override

@@ -14,8 +14,8 @@ import 'package:facturacion/widgets/ss_tabs.dart';
 import 'package:facturacion/widgets/ss_textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:simple_barcode_scanner/simple_barcode_scanner.dart';
 
 @RoutePage()
 class BuyPage extends ConsumerStatefulWidget {
@@ -62,33 +62,66 @@ class _HomePageState extends ConsumerState<BuyPage> {
     products = ref.watch(appProvider).products ?? [];
 
     Future<void> scanBarCode({loading = true}) async {
-      FlutterBarcodeScanner.getBarcodeStreamReceiver(
-        "#ff6666",
-        "Cancel",
-        true,
-        ScanMode.BARCODE,
-      )?.listen((barcode) async {
-        _search.text = barcode;
-        if (_search.text.isEmpty) {
-          productsSearch = products
-              .where(
-                (product) => productsSelected
-                    .every((selected) => selected.id != product.id),
-              )
-              .toList();
-        } else {
-          productsSearch = products
-              .where(
-                (product) =>
-                    (product.barCode.contains(_search.text) ||
-                        product.name.contains(_search.text)) &&
-                    productsSelected
-                        .every((selected) => selected.id != product.id),
-              )
-              .toList();
-        }
-        setState(() {});
-      });
+      // FlutterBarcodeScanner.getBarcodeStreamReceiver(
+      //   "#ff6666",
+      //   "Cancel",
+      //   true,
+      //   ScanMode.BARCODE,
+      // )?.listen((barcode) async {
+      //   _search.text = barcode;
+      //   if (_search.text.isEmpty) {
+      //     productsSearch = products
+      //         .where(
+      //           (product) => productsSelected
+      //               .every((selected) => selected.id != product.id),
+      //         )
+      //         .toList();
+      //   } else {
+      //     productsSearch = products
+      //         .where(
+      //           (product) =>
+      //               (product.barCode.contains(_search.text) ||
+      //                   product.name.contains(_search.text)) &&
+      //               productsSelected
+      //                   .every((selected) => selected.id != product.id),
+      //         )
+      //         .toList();
+      //   }
+      //   setState(() {});
+      // });
+
+      String? res = await SimpleBarcodeScanner.scanBarcode(
+        context,
+        barcodeAppBar: const BarcodeAppBar(
+          appBarTitle: 'Test',
+          centerTitle: false,
+          enableBackButton: true,
+          backButtonIcon: Icon(Icons.arrow_back_ios),
+        ),
+        isShowFlashIcon: true,
+        delayMillis: 2000,
+        cameraFace: CameraFace.front,
+      );
+      _search.text = res ?? '';
+      if (_search.text.isEmpty) {
+        productsSearch = products
+            .where(
+              (product) => productsSelected
+                  .every((selected) => selected.id != product.id),
+            )
+            .toList();
+      } else {
+        productsSearch = products
+            .where(
+              (product) =>
+                  (product.barCode.contains(_search.text) ||
+                      product.name.contains(_search.text)) &&
+                  productsSelected
+                      .every((selected) => selected.id != product.id),
+            )
+            .toList();
+      }
+      setState(() {});
     }
 
     return Scaffold(
