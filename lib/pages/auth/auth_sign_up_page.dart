@@ -128,6 +128,10 @@ class _AuthSignUpPageState extends ConsumerState<AuthSignUpPage> {
                           phone: _phoneController.text,
                           documentType: cc!,
                         );
+                    SsAlert.showAutoDismissSnackbar(
+                        appRouter.navigatorKey.currentContext!,
+                        Colors.green,
+                        'Usuario creado correctamente');
                     appRouter.back();
                   } catch (e) {
                     SsAlert.showAutoDismissSnackbar(

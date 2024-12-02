@@ -33,8 +33,6 @@ class _AuthSignInPageState extends ConsumerState<AuthSignInPage> {
   }
 
   Future<void> signUpPress() async {
-    loading = true;
-    setState(() {});
     if (emailController.text.isEmpty) {
       SsAlert.showAutoDismissSnackbar(
           context, Colors.red, 'Por favor ingresa un correo');
@@ -54,6 +52,8 @@ class _AuthSignInPageState extends ConsumerState<AuthSignInPage> {
       return;
     }
     try {
+      loading = true;
+      setState(() {});
       await ref.read(appProvider.notifier).signUpPress(
             correo: emailController.text,
             password: passwordController.text,

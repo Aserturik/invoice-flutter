@@ -1,0 +1,11 @@
+{
+    "cSpell.words": [
+        "unawaited"
+    ],
+    "yaml.schemas": {
+        "https://unpkg.com/graphql-config/config-schema.json": [
+            "file:///Volumes/WILLIAM/SportSpace/frontend/apps/admin/lib/data/sources/graphql/graphql.config.yml",
+            "file:///Volumes/WILLIAM/SportSpace/frontend/graphql.config.yml"
+        ]
+    }
+}

@@ -1,0 +1,26 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "app",
+      "request": "launch",
+      "type": "dart",
+      "program": "apps/app/lib/main.dart",
+      "args": [
+        "flutter",
+        "run",
+      ]
+    },
+    {
+      "name": "app-release",
+      "request": "launch",
+      "type": "dart",
+      "program": "apps/app/lib/main.dart",
+      "args": [
+        "flutter",
+        "run",
+        "--release"
+      ]
+    },
+  ]
+}

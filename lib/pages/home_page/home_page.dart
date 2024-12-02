@@ -174,7 +174,6 @@ class _HomePageState extends ConsumerState<HomePage> {
               appRouter.push(const BuyRoute());
               break;
             default:
-              await scanBarCode();
               break;
           }
         },
