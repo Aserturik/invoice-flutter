@@ -132,13 +132,11 @@ class HomeNotifier extends StateNotifier<HomeState> {
 
       if (response.statusCode == 200) {
         final jsonData = jsonDecode(response.body);
-        // Extraemos la lista de compras del JSON
         List<dynamic> buysJson = jsonData['content'];
-        // Convertimos la lista de JSON a objetos BuyModel
         List<BuyModel> buys = BuyModel.fromJsonList(buysJson);
 
         state = state.copyWith(
-          buys: buys, // Actualizamos el estado con las compras obtenidas
+          buys: buys,
         );
 
         SsAlert.showAutoDismissSnackbar(

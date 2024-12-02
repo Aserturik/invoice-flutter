@@ -213,7 +213,6 @@ class AuthSignUpNotifier extends StateNotifier<AppState> {
       return product;
     } else {
       SsAlert.showAutoDismissSnackbar(
-        // ignore: use_build_context_synchronously
         appRouter.navigatorKey.currentContext!,
         Colors.red,
         'Producto no encontrado',

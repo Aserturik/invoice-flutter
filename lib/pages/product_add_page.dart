@@ -69,19 +69,6 @@ class _ProductAddPageState extends ConsumerState<ProductAddPage> {
                 controller: _nameController,
                 keyboardType: TextInputType.text,
               ),
-              // const SizedBox(height: 10),
-              // const Text('Cantidad producto'),
-              // TextField(
-              //   decoration: const InputDecoration(
-              //     border: OutlineInputBorder(),
-              //     labelText: 'Cantidad',
-              //   ),
-              //   controller: _stockController,
-              //   keyboardType: TextInputType.number,
-              //   inputFormatters: [
-              //     FilteringTextInputFormatter.digitsOnly,
-              //   ],
-              // ),
               const SizedBox(height: 10),
               const Text('Precio del producto'),
               TextField(

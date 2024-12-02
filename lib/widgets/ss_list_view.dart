@@ -71,8 +71,6 @@ class _SsListViewState extends State<SsListView> {
           _refreshController.refreshFailed();
         });
       },
-      // header: const SsListHeader(),
-      // footer: const SsListFooter(),
       child: ListView.builder(
         scrollDirection: widget.scrollDirection,
         cacheExtent: cacheExtent,

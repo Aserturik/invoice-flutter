@@ -43,7 +43,6 @@ class _ProductAddPageState extends ConsumerState<ClientAddPage> {
 
   @override
   Widget build(BuildContext context) {
-    // final loading = ref.watch(appProvider).loadingHome;
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color.fromRGBO(238, 106, 34, 1),
@@ -129,9 +128,7 @@ class _ProductAddPageState extends ConsumerState<ClientAddPage> {
                           email: _emailController.text,
                           phone: _phoneController.text,
                           documentType: cc,
-                        )
-                            // stock: int.parse(_stockController.text),
-                            );
+                        ));
                   } else {
                     await ref.read(homeProvider.notifier).updateClient(
                           client: ClientModel(

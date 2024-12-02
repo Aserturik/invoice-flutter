@@ -21,15 +21,6 @@ class _HomePageState extends ConsumerState<SaleDetailsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // floatingActionButton: FloatingActionButton(
-      //   backgroundColor: Colors.green,
-      //   child: const Icon(Icons.add),
-      //   onPressed: () async {
-      //     await ref.read(appProvider.notifier).sales(
-      //           sales: productsSelected,
-      //         );
-      //   },
-      // ),
       appBar: AppBar(
         backgroundColor: SsColors.orange,
         title: const Text('Detalles de venta'),

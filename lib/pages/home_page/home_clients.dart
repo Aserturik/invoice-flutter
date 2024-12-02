@@ -16,7 +16,6 @@ class _HomeClientsState extends ConsumerState<HomeClients> {
   @override
   Widget build(BuildContext context) {
     final bool loading = ref.watch(appProvider).loadingHome;
-    // final List<ProductModel?>? products = ref.watch(appProvider).products;
     return loading
         ? const Center(child: CircularProgressIndicator())
         : ListView.builder(

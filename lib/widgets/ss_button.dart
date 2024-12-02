@@ -44,10 +44,8 @@ class SsButton extends StatelessWidget {
         child: Center(
           child: loading
               ? SizedBox(
-                  height: fontSize ??
-                      20, // Ajusta el tamaño al esperado para el texto
-                  width: fontSize ??
-                      20, // Igual altura y ancho para mantener proporción
+                  height: fontSize ?? 20,
+                  width: fontSize ?? 20,
                   child: const CircularProgressIndicator(strokeWidth: 2),
                 )
               : Text(
