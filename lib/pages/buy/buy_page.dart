@@ -14,6 +14,7 @@ import 'package:facturacion/widgets/ss_tabs.dart';
 import 'package:facturacion/widgets/ss_textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 @RoutePage()
@@ -36,6 +37,7 @@ class _HomePageState extends ConsumerState<BuyPage> {
   List<SaleModel> salesList = [];
   List<ProductModel> productsSearch = [];
   List<ProductModel> productsSelected = [];
+  List<ProductModel> products = [];
   ClientModel? clientModel;
   @override
   void initState() {
@@ -57,7 +59,38 @@ class _HomePageState extends ConsumerState<BuyPage> {
   @override
   Widget build(BuildContext context) {
     final bool loading = ref.watch(appProvider).loadingHome;
-    final List<ProductModel> products = ref.watch(appProvider).products ?? [];
+    products = ref.watch(appProvider).products ?? [];
+
+    Future<void> scanBarCode({loading = true}) async {
+      FlutterBarcodeScanner.getBarcodeStreamReceiver(
+        "#ff6666",
+        "Cancel",
+        true,
+        ScanMode.BARCODE,
+      )?.listen((barcode) async {
+        _search.text = barcode;
+        if (_search.text.isEmpty) {
+          productsSearch = products
+              .where(
+                (product) => productsSelected
+                    .every((selected) => selected.id != product.id),
+              )
+              .toList();
+        } else {
+          productsSearch = products
+              .where(
+                (product) =>
+                    (product.barCode.contains(_search.text) ||
+                        product.name.contains(_search.text)) &&
+                    productsSelected
+                        .every((selected) => selected.id != product.id),
+              )
+              .toList();
+        }
+        setState(() {});
+      });
+    }
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: SsColors.orange,
@@ -76,39 +109,52 @@ class _HomePageState extends ConsumerState<BuyPage> {
                         const SizedBox(
                           height: 10,
                         ),
-                        SsTextfield(
-                          onChanged: (value) {
-                            try {
-                              if (value.isEmpty) {
-                                productsSearch = products
-                                    .where(
-                                      (product) => productsSelected.every(
-                                          (selected) =>
-                                              selected.id != product.id),
-                                    )
-                                    .toList();
-                              } else {
-                                productsSearch = products
-                                    .where(
-                                      (product) =>
-                                          (product.barCode.contains(value) ||
-                                              product.name.contains(value)) &&
-                                          productsSelected.every((selected) =>
-                                              selected.id != product.id),
-                                    )
-                                    .toList();
-                              }
-                            } catch (e) {
-                              productSelected = null;
-                            }
-                            setState(() {});
-                          },
-                          labelText: 'Nombre o BarCode',
-                          controller: _search,
-                          // keyboardType: TextInputType.number,
-                          // inputFormatters: [
-                          //   FilteringTextInputFormatter.digitsOnly,
-                          // ],
+                        Row(
+                          children: [
+                            Expanded(
+                              child: SsTextfield(
+                                onChanged: (value) {
+                                  try {
+                                    if (value.isEmpty) {
+                                      productsSearch = products
+                                          .where(
+                                            (product) => productsSelected.every(
+                                                (selected) =>
+                                                    selected.id != product.id),
+                                          )
+                                          .toList();
+                                    } else {
+                                      productsSearch = products
+                                          .where(
+                                            (product) =>
+                                                (product.barCode
+                                                        .contains(value) ||
+                                                    product.name
+                                                        .contains(value)) &&
+                                                productsSelected.every(
+                                                    (selected) =>
+                                                        selected.id !=
+                                                        product.id),
+                                          )
+                                          .toList();
+                                    }
+                                  } catch (e) {
+                                    productSelected = null;
+                                  }
+                                  setState(() {});
+                                },
+                                labelText: 'Nombre o BarCode',
+                                controller: _search,
+                              ),
+                            ),
+                            const SizedBox(
+                              width: 10,
+                            ),
+                            SsButton(
+                                width: 100,
+                                text: 'Cam',
+                                onPressed: scanBarCode),
+                          ],
                         ),
                         const SizedBox(
                           height: 10,

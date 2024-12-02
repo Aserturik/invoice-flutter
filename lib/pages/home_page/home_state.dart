@@ -6,6 +6,7 @@ import 'package:facturacion/pages/home_page/home_provider.dart';
 class HomeState {
   final HomePages? page;
   final List<ClientModel>? clients;
+  final List<ClientModel>? employees;
   final bool loadingClients;
   final List<SaleModel>? sales;
   final List<BuyModel>? buys;
@@ -16,11 +17,13 @@ class HomeState {
     this.clients,
     this.sales,
     this.buys,
+    this.employees,
   });
 
   HomeState copyWith({
     HomePages? page,
     List<ClientModel>? clients,
+    List<ClientModel>? employees,
     bool? loadingClients,
     List<SaleModel>? sales,
     List<BuyModel>? buys,
@@ -31,6 +34,7 @@ class HomeState {
       loadingClients: loadingClients ?? this.loadingClients,
       sales: sales ?? this.sales,
       buys: buys ?? this.buys,
+      employees: employees ?? this.employees,
     );
   }
 }

@@ -14,6 +14,7 @@ import 'package:facturacion/widgets/ss_tabs.dart';
 import 'package:facturacion/widgets/ss_textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 @RoutePage()
@@ -30,9 +31,11 @@ class _HomePageState extends ConsumerState<SalePage> {
   final TextEditingController _stock = TextEditingController(text: '1');
   bool loadingSales = false;
   List<SaleModel> salesList = [];
+  List<ProductModel> products = [];
   List<ProductModel> productsSearch = [];
   List<ProductModel> productsSelected = [];
   ClientModel? clientModel;
+  ClientModel? employeeModel;
   @override
   void initState() {
     super.initState();
@@ -50,20 +53,42 @@ class _HomePageState extends ConsumerState<SalePage> {
     });
   }
 
+  Future<void> scanBarCode({loading = true}) async {
+    FlutterBarcodeScanner.getBarcodeStreamReceiver(
+      "#ff6666",
+      "Cancel",
+      true,
+      ScanMode.BARCODE,
+    )?.listen((barcode) async {
+      _search.text = barcode;
+      if (_search.text.isEmpty) {
+        productsSearch = products
+            .where(
+              (product) => productsSelected
+                  .every((selected) => selected.id != product.id),
+            )
+            .toList();
+      } else {
+        productsSearch = products
+            .where(
+              (product) =>
+                  (product.barCode.contains(_search.text) ||
+                      product.name.contains(_search.text)) &&
+                  productsSelected
+                      .every((selected) => selected.id != product.id),
+            )
+            .toList();
+      }
+      setState(() {});
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final bool loading = ref.watch(appProvider).loadingHome;
-    final List<ProductModel> products = ref.watch(appProvider).products ?? [];
+    products = ref.watch(appProvider).products ?? [];
+
     return Scaffold(
-      // floatingActionButton: FloatingActionButton(
-      //   backgroundColor: Colors.green,
-      //   child: const Icon(Icons.add),
-      //   onPressed: () async {
-      //     await ref.read(appProvider.notifier).sales(
-      //           sales: productsSelected,
-      //         );
-      //   },
-      // ),
       appBar: AppBar(
         backgroundColor: SsColors.orange,
         title: const Text('Ventas'),
@@ -81,39 +106,53 @@ class _HomePageState extends ConsumerState<SalePage> {
                         const SizedBox(
                           height: 10,
                         ),
-                        SsTextfield(
-                          onChanged: (value) {
-                            try {
-                              if (value.isEmpty) {
-                                productsSearch = products
-                                    .where(
-                                      (product) => productsSelected.every(
-                                          (selected) =>
-                                              selected.id != product.id),
-                                    )
-                                    .toList();
-                              } else {
-                                productsSearch = products
-                                    .where(
-                                      (product) =>
-                                          (product.barCode.contains(value) ||
-                                              product.name.contains(value)) &&
-                                          productsSelected.every((selected) =>
-                                              selected.id != product.id),
-                                    )
-                                    .toList();
-                              }
-                            } catch (e) {
-                              productSelected = null;
-                            }
-                            setState(() {});
-                          },
-                          labelText: 'Nombre o BarCode',
-                          controller: _search,
-                          // keyboardType: TextInputType.number,
-                          // inputFormatters: [
-                          //   FilteringTextInputFormatter.digitsOnly,
-                          // ],
+                        Row(
+                          children: [
+                            Expanded(
+                              child: SsTextfield(
+                                width: 100,
+                                onChanged: (value) {
+                                  try {
+                                    if (value.isEmpty) {
+                                      productsSearch = products
+                                          .where(
+                                            (product) => productsSelected.every(
+                                                (selected) =>
+                                                    selected.id != product.id),
+                                          )
+                                          .toList();
+                                    } else {
+                                      productsSearch = products
+                                          .where(
+                                            (product) =>
+                                                (product.barCode
+                                                        .contains(value) ||
+                                                    product.name
+                                                        .contains(value)) &&
+                                                productsSelected.every(
+                                                    (selected) =>
+                                                        selected.id !=
+                                                        product.id),
+                                          )
+                                          .toList();
+                                    }
+                                  } catch (e) {
+                                    productSelected = null;
+                                  }
+                                  setState(() {});
+                                },
+                                labelText: 'Nombre o BarCode',
+                                controller: _search,
+                              ),
+                            ),
+                            const SizedBox(
+                              width: 10,
+                            ),
+                            SsButton(
+                                width: 100,
+                                text: 'Cam',
+                                onPressed: scanBarCode),
+                          ],
                         ),
                         const SizedBox(
                           height: 10,
@@ -447,20 +486,20 @@ class _HomePageState extends ConsumerState<SalePage> {
                                 onChanged: (value) {
                                   clientModel = value;
                                 },
-                                hint: 'Elegir empleado',
+                                hint: 'Elegir cliente',
                                 initialValue: clientModel,
                               ),
                               const SizedBox(
                                 height: 20,
                               ),
                               SsDropdown<ClientModel>(
-                                options: ref.read(homeProvider).clients ?? [],
+                                options: ref.read(homeProvider).employees ?? [],
                                 itemBuilder: (item) => Text(item.email),
                                 onChanged: (value) {
-                                  clientModel = value;
+                                  employeeModel = value;
                                 },
-                                hint: 'Elegir cliente',
-                                initialValue: clientModel,
+                                hint: 'Elegir empleado',
+                                initialValue: employeeModel,
                               ),
                               const SizedBox(height: 20),
                               SsButton(
@@ -478,11 +517,18 @@ class _HomePageState extends ConsumerState<SalePage> {
                                         context, Colors.red, 'No hay cliente');
                                     return;
                                   }
+
+                                  if (employeeModel?.email == null ||
+                                      employeeModel!.email.isEmpty) {
+                                    SsAlert.showAutoDismissSnackbar(
+                                        context, Colors.red, 'No hay empleado');
+                                    return;
+                                  }
                                   setState(() => loadingSales = true);
                                   await ref.read(appProvider.notifier).sendSale(
-                                      productsSelected,
-                                      context,
-                                      clientModel!.email);
+                                      employee: employeeModel!,
+                                      products: productsSelected,
+                                      client: clientModel!);
                                   setState(() => loadingSales = false);
                                 },
                                 fontSize: 16,

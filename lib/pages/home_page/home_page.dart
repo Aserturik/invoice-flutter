@@ -29,6 +29,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
       await ref.read(appProvider.notifier).fetchData();
       await ref.read(homeProvider.notifier).fetchDataClients();
+      await ref.read(homeProvider.notifier).fetchDataEmployees();
       await ref.read(homeProvider.notifier).fetchDataSales();
       await ref.read(homeProvider.notifier).fetchDataBuys();
     });

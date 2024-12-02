@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:facturacion/models/client_model.dart';
 import 'package:facturacion/routes/app_router.dart';
 import 'package:facturacion/routes/app_router.gr.dart';
 import 'package:facturacion/shared/constants/constants.dart';
@@ -33,6 +34,36 @@ class AuthSignUpNotifier extends StateNotifier<AppState> {
     jwtToken = CacheNetwork.getCacheData(key: 'jwtToken');
   }
 
+  Future<void> signInPress({
+    required String name,
+    required String document,
+    required String documentType,
+    required String correo,
+    required String phone,
+    required String password,
+  }) async {
+    await http.post(
+      Uri.parse('$api/login/registerAdmin'),
+      headers: {"Content-Type": "application/json"},
+      body: json.encode(
+        {
+          "personRegisterDTO": {
+            "name": correo,
+            "documentNumber": document,
+            "documentType": documentType,
+            "email": correo,
+            "phone": phone,
+          },
+          "loginRegisterDTO": {
+            "email": correo,
+            "password": password,
+            "role": "WORKER",
+          },
+        },
+      ),
+    );
+  }
+
   Future<void> fetchData({loading = true}) async {
     if (loading) {
       state = state.copyWith(loadingHome: true);
@@ -57,11 +88,11 @@ class AuthSignUpNotifier extends StateNotifier<AppState> {
     }
   }
 
-  Future<void> sendSale(
-    List<ProductModel> products,
-    BuildContext context,
-    String email,
-  ) async {
+  Future<void> sendSale({
+    required ClientModel client,
+    required ClientModel employee,
+    required List<ProductModel> products,
+  }) async {
     const String paymentMethod = 'CASH';
     final saleDetails = products.map((product) {
       return {
@@ -71,7 +102,8 @@ class AuthSignUpNotifier extends StateNotifier<AppState> {
     }).toList();
 
     final requestBody = {
-      "username": email,
+      "username": employee.email,
+      "clientId": client.id,
       "paymentMethod": paymentMethod,
       "saleDetails": saleDetails,
     };
@@ -88,24 +120,21 @@ class AuthSignUpNotifier extends StateNotifier<AppState> {
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         SsAlert.showAutoDismissSnackbar(
-          // ignore: use_build_context_synchronously
-          context,
+          appRouter.navigatorKey.currentContext!,
           Colors.green,
           'Venta realizada con éxito',
         );
         appRouter.popAndPush(const HomeRoute());
       } else {
         SsAlert.showAutoDismissSnackbar(
-          // ignore: use_build_context_synchronously
-          context,
+          appRouter.navigatorKey.currentContext!,
           Colors.red,
           'Error al realizar la venta: ${response.statusCode}',
         );
       }
     } catch (e) {
       SsAlert.showAutoDismissSnackbar(
-        // ignore: use_build_context_synchronously
-        context,
+        appRouter.navigatorKey.currentContext!,
         Colors.red,
         'Error al realizar la venta: $e',
       );

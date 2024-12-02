@@ -68,7 +68,8 @@ class _HomeProductsState extends ConsumerState<HomeInvoice> {
                         Column(
                           children: [
                             Text(sales[index].total.toMoney()),
-                            Text(sales[index].workerName),
+                            Text('Vendedor: ${sales[index].workerName}'),
+                            Text('Cliente: ${sales[index].client.name}'),
                           ],
                         ),
                       ],

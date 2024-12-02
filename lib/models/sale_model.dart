@@ -1,3 +1,4 @@
+import 'package:facturacion/models/client_model.dart';
 import 'package:facturacion/models/sale_details_model.dart';
 
 class SaleModel {
@@ -7,6 +8,7 @@ class SaleModel {
   final String saleDate;
   final String workerName;
   final List<SaleDetailsModel> details;
+  final ClientModel client;
 
   SaleModel({
     required this.id,
@@ -15,6 +17,7 @@ class SaleModel {
     required this.saleDate,
     required this.workerName,
     required this.details,
+    required this.client,
   });
 
   factory SaleModel.fromJson(Map<String, dynamic> json) {
@@ -25,6 +28,7 @@ class SaleModel {
       saleDate: json['saleDate'],
       workerName: json['workerName'],
       details: SaleDetailsModel.fromJsonList(json['saleDetails']),
+      client: ClientModel.fromJson(json['client']),
     );
   }
 
@@ -39,6 +43,7 @@ class SaleModel {
     String? saleDate,
     String? workerName,
     List<SaleDetailsModel>? details,
+    ClientModel? client,
   }) {
     return SaleModel(
       id: id ?? this.id,
@@ -47,6 +52,7 @@ class SaleModel {
       saleDate: saleDate ?? this.saleDate,
       workerName: workerName ?? this.workerName,
       details: details ?? this.details,
+      client: client ?? this.client,
     );
   }
 }

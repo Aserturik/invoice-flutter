@@ -51,6 +51,32 @@ class HomeNotifier extends StateNotifier<HomeState> {
     state = state.copyWith(loadingClients: false);
   }
 
+  Future<void> fetchDataEmployees({loading = true}) async {
+    state = state.copyWith(loadingClients: true);
+    final response = await http.get(
+      Uri.parse('$api/people/employee'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $jwtToken',
+      },
+    );
+    if (response.statusCode == 200) {
+      final jsonData = jsonDecode(response.body);
+      List<dynamic> clientsJson = jsonData['content'];
+      List<ClientModel> employees = ClientModel.fromJsonList(clientsJson);
+      state = state.copyWith(
+        employees: employees,
+      );
+    } else {
+      SsAlert.showAutoDismissSnackbar(
+        appRouter.navigatorKey.currentContext!,
+        Colors.red,
+        'Error al cargar los clientes',
+      );
+    }
+    state = state.copyWith(loadingClients: false);
+  }
+
   Future<void> fetchDataSales({bool loading = true}) async {
     state = state.copyWith(loadingClients: true);
     try {
